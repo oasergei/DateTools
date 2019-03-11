@@ -216,7 +216,6 @@ public extension Date {
     }
     
     private func getLocaleFormatUnderscoresWithValue(_ value: Double) -> String{
-        let localCode = Bundle.main.preferredLocalizations[0]
     
         let localCode = languageCodeForTimeOnLine != nil ? languageCodeForTimeOnLine : Bundle.main.preferredLocalizations[0]
         

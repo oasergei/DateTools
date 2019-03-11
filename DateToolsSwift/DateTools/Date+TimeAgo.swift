@@ -12,6 +12,9 @@ import Foundation
  *  Extends the Date class by adding convenient methods to display the passage of
  *  time in String format.
  */
+
+public var languageCodeForTimeOnLine: String? = nil
+
 public extension Date {
     
     //MARK: - Time Ago
@@ -26,6 +29,10 @@ public extension Date {
      */
     public static func timeAgo(since date:Date) -> String{
         return date.timeAgo(since: Date(), numericDates: false, numericTimes: false)
+    }
+
+    public static func setLanguageCode(languageCode: String) {
+        languageCodeForTimeOnLine = languageCode
     }
     
     /**
@@ -208,9 +215,11 @@ public extension Date {
         return String.init(format: DateToolsLocalizedStrings(localeFormat), value)
     }
     
-    
     private func getLocaleFormatUnderscoresWithValue(_ value: Double) -> String{
         let localCode = Bundle.main.preferredLocalizations[0]
+    
+        let localCode = languageCodeForTimeOnLine != nil ? languageCodeForTimeOnLine : Bundle.main.preferredLocalizations[0]
+        
         if (localCode == "ru" || localCode == "uk") {
             let XY = Int(floor(value).truncatingRemainder(dividingBy: 100))
             let Y = Int(floor(value).truncatingRemainder(dividingBy: 10))
@@ -243,7 +252,16 @@ public extension Date {
         // However, a seemingly-equivalent method from NSBundle is: https://github.com/apple/swift-corelibs-foundation/blob/master/Foundation/NSBundle.swift
             return Bundle.main.localizedString(forKey: string, value: "", table: "DateTools")
         #else
-            return NSLocalizedString(string, tableName: "DateTools", bundle: Bundle.dateToolsBundle(), value: "", comment: "")
+
+        var tableName = languageCodeForTimeOnLine != nil ? String(format: "%@.lproj/DateTools", languageCodeForTimeOnLine!) : "DateTools"
+        
+        if tableName.hasPrefix("tg.") {
+            tableName = tableName.replacingOccurrences(of: "tg.", with: "tg-TJ.")
+        } else if tableName.hasPrefix("ky.") {
+            tableName = tableName.replacingOccurrences(of: "ky.", with: "ky-KG.")
+        }
+        
+        return NSLocalizedString(string, tableName: tableName, bundle: Bundle.dateToolsBundle(), value: "", comment: "")
         #endif
     }
     
